@@ -1,0 +1,10 @@
+{
+  "name": {
+    "message": "Reading Companion",
+    "description": "The name of the extension"
+  },
+  "description": {
+    "message": "AI-powered reading companion that summarizes articles, provides insights, and enables interactive discussions",
+    "description": "The description of the extension"
+  }
+}

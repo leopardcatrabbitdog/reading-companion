@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reading Companion</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      width: 380px;
+      font-family: 'Source Serif 4', Georgia, 'Times New Roman', serif;
+      background: #fafafa;
+      color: #1a1a1a;
+    }
+
+    .popup-container {
+      padding: 28px 28px 24px;
+    }
+
+    /* ── Header ── */
+    .header {
+      margin-bottom: 28px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid #ddd;
+    }
+
+    .header-icon {
+      font-size: 36px;
+      line-height: 1;
+      letter-spacing: -0.02em;
+      font-style: italic;
+      font-weight: 700;
+    }
+
+    .header-text h1 {
+      font-size: 22px;
+      font-weight: 700;
+      color: #1a1a1a;
+      letter-spacing: -0.02em;
+      margin-top: 6px;
+      font-family: 'Source Serif 4', Georgia, serif;
+    }
+
+    .header-text p {
+      font-size: 12px;
+      color: #888;
+      margin-top: 3px;
+      font-style: italic;
+      font-family: 'Source Serif 4', Georgia, serif;
+    }
+
+    /* ── Status ── */
+    .status {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      background: #f0f0f0;
+      border-left: 3px solid #1a1a1a;
+      margin-bottom: 24px;
+    }
+
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .status-dot.connected  { background: #3a3a3a; }
+    .status-dot.disconnected { background: #bbb; }
+    .status-dot.testing {
+      background: #888;
+      animation: blink 1.2s ease-in-out infinite;
+    }
+    .status-dot.success { background: #3a3a3a; }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+
+    .status-text {
+      font-size: 12px;
+      color: #666;
+      font-style: italic;
+    }
+
+    /* ── Section labels ── */
+    .section {
+      margin-bottom: 22px;
+    }
+
+    .section-title {
+      font-size: 10px;
+      font-weight: 600;
+      color: #999;
+      margin-bottom: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      font-family: 'Source Sans 3', Arial, sans-serif;
+    }
+
+    /* ── API Provider selector ── */
+    .api-selector label {
+      font-size: 12px;
+      color: #555;
+      margin-bottom: 6px;
+      display: block;
+      font-style: italic;
+    }
+
+    .api-selector select {
+      width: 100%;
+      padding: 8px 10px;
+      border: 1px solid #ccc;
+      background: #fff;
+      font-size: 13px;
+      color: #1a1a1a;
+      cursor: pointer;
+      border-radius: 0;
+      font-family: 'Source Serif 4', Georgia, serif;
+      appearance: none;
+      -webkit-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23999'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+      padding-right: 28px;
+    }
+
+    .api-selector select:focus {
+      outline: none;
+      border-color: #1a1a1a;
+    }
+
+    /* ── Input row ── */
+    .api-key-group {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .api-key-input {
+      flex: 1;
+      padding: 8px 10px;
+      border: 1px solid #ccc;
+      font-size: 12px;
+      background: #fff;
+      border-radius: 0;
+      color: #1a1a1a;
+      font-family: 'Courier New', monospace;
+    }
+
+    .api-key-input:focus {
+      outline: none;
+      border-color: #1a1a1a;
+    }
+
+    .api-key-input::placeholder {
+      color: #bbb;
+      font-family: 'Courier New', monospace;
+      font-size: 11px;
+    }
+
+    /* ── Buttons ── */
+    .save-btn {
+      padding: 8px 18px;
+      background: #1a1a1a;
+      color: #fff;
+      border: 1px solid #1a1a1a;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      border-radius: 0;
+      transition: background 0.2s ease, color 0.2s ease;
+      flex-shrink: 0;
+      font-family: 'Source Sans 3', Arial, sans-serif;
+    }
+
+    .save-btn:hover {
+      background: #3a3a3a;
+      border-color: #3a3a3a;
+    }
+
+    .save-btn.saved {
+      background: #555;
+      border-color: #555;
+    }
+
+    .test-btn {
+      width: 100%;
+      padding: 8px;
+      background: transparent;
+      border: 1px solid #bbb;
+      cursor: pointer;
+      font-size: 11px;
+      margin-top: 8px;
+      color: #555;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      border-radius: 0;
+      transition: border-color 0.2s, color 0.2s;
+      font-family: 'Source Sans 3', Arial, sans-serif;
+      font-weight: 600;
+    }
+
+    .test-btn:hover {
+      border-color: #1a1a1a;
+      color: #1a1a1a;
+    }
+
+    .api-link {
+      margin-top: 8px;
+      font-size: 11px;
+      color: #aaa;
+      font-family: 'Source Sans 3', Arial, sans-serif;
+    }
+
+    .api-link a {
+      color: #555;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+
+    .api-link a:hover {
+      color: #1a1a1a;
+    }
+
+    /* ── Gemini model select (inline in HTML) ── */
+    .gemini-fields select {
+      width: 100%;
+      padding: 8px 10px;
+      border: 1px solid #ccc;
+      background: #fff;
+      font-size: 12px;
+      color: #1a1a1a;
+      cursor: pointer;
+      border-radius: 0;
+      margin-top: 8px;
+      font-family: 'Source Serif 4', Georgia, serif;
+      appearance: none;
+      -webkit-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23999'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+      padding-right: 28px;
+    }
+
+    .gemini-fields select:focus {
+      outline: none;
+      border-color: #1a1a1a;
+    }
+
+    /* ── Feature toggles ── */
+    .toggle-group {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 9px 0;
+      border-bottom: 1px solid #eee;
+    }
+
+    .toggle-group:last-child {
+      border-bottom: none;
+    }
+
+    .toggle-label {
+      font-size: 13px;
+      color: #333;
+      font-style: italic;
+    }
+
+    .toggle-switch {
+      position: relative;
+      width: 36px;
+      height: 20px;
+      flex-shrink: 0;
+    }
+
+    .toggle-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .toggle-slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: #ccc;
+      transition: 0.3s;
+    }
+
+    .toggle-slider:before {
+      position: absolute;
+      content: "";
+      height: 14px;
+      width: 14px;
+      left: 3px;
+      bottom: 3px;
+      background-color: #fff;
+      transition: 0.3s;
+    }
+
+    .toggle-switch input:checked + .toggle-slider {
+      background-color: #1a1a1a;
+    }
+
+    .toggle-switch input:checked + .toggle-slider:before {
+      transform: translateX(16px);
+    }
+
+    /* ── Action button ── */
+    .action-btn {
+      width: 100%;
+      padding: 13px 20px;
+      background: #1a1a1a;
+      color: #fff;
+      border: 1px solid #1a1a1a;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      cursor: pointer;
+      border-radius: 0;
+      margin-top: 20px;
+      transition: background 0.2s ease, color 0.2s ease;
+      font-family: 'Source Serif 4', Georgia, serif;
+      font-style: italic;
+    }
+
+    .action-btn:hover {
+      background: #fff;
+      color: #1a1a1a;
+    }
+
+    /* ── Shortcuts ── */
+    .shortcuts {
+      margin-top: 20px;
+      padding-top: 16px;
+      border-top: 1px solid #ddd;
+    }
+
+    .shortcut {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 5px 0;
+      font-size: 12px;
+      color: #666;
+      font-style: italic;
+    }
+
+    .shortcut-key {
+      background: transparent;
+      padding: 2px 8px;
+      border: 1px solid #bbb;
+      font-family: 'Courier New', monospace;
+      font-size: 10px;
+      color: #888;
+      font-style: normal;
+    }
+
+    /* ── Footer ── */
+    .footer {
+      margin-top: 20px;
+      text-align: left;
+      font-size: 10px;
+      color: #ccc;
+      font-family: 'Source Sans 3', Arial, sans-serif;
+      letter-spacing: 0.05em;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .provider-deepseek .deepseek-fields { display: block; }
+    .provider-deepseek .gemini-fields { display: none; }
+    .provider-gemini .deepseek-fields { display: none; }
+    .provider-gemini .gemini-fields { display: block; }
+  </style>
+</head>
+<body>
+  <div class="popup-container" id="popup-container">
+    <div class="header">
+      <span class="header-icon">RC</span>
+      <div class="header-text">
+        <h1>Reading Companion</h1>
+        <p>AI-powered article analysis</p>
+      </div>
+    </div>
+    
+    <div class="status" id="api-status">
+      <span class="status-dot disconnected"></span>
+      <span class="status-text">API key not configured</span>
+    </div>
+    
+    <div class="section">
+      <div class="section-title">API Provider</div>
+      
+      <div class="api-selector">
+        <label for="api-provider">Select AI Provider:</label>
+        <select id="api-provider">
+          <option value="deepseek">DeepSeek</option>
+          <option value="gemini">Google Gemini</option>
+        </select>
+      </div>
+      
+      <!-- DeepSeek Fields -->
+      <div class="deepseek-fields">
+        <div class="api-key-group">
+          <input type="password" class="api-key-input" id="api-key" placeholder="Enter your DeepSeek API key">
+          <button class="save-btn" id="save-btn">Save</button>
+        </div>
+        <button class="test-btn" id="test-btn">Test Connection</button>
+        <p class="api-link">
+          Get API key: <a href="https://platform.deepseek.com/" target="_blank">platform.deepseek.com</a>
+        </p>
+      </div>
+      
+      <!-- Gemini Fields -->
+      <div class="gemini-fields" style="display: none;">
+        <div class="api-key-group">
+          <input type="password" class="api-key-input" id="gemini-api-key" placeholder="Enter your Gemini API key">
+          <button class="save-btn" id="gemini-save-btn">Save</button>
+        </div>
+        <div style="margin-top: 8px;">
+          <select id="gemini-model" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 6px; font-size: 12px;">
+            <option value="gemini-2.5-flash">Gemini 2.5 Flash (推荐·快速)</option>
+            <option value="gemini-2.5-pro">Gemini 2.5 Pro (深度推理)</option>
+          </select>
+        </div>
+        <button class="test-btn" id="gemini-test-btn">Test Connection</button>
+        <p class="api-link">
+          Get API key: <a href="https://aistudio.google.com/app/apikey" target="_blank">aistudio.google.com</a>
+        </p>
+      </div>
+    </div>
+    
+    <div class="section">
+      <div class="section-title">Features</div>
+
+      <div class="toggle-group">
+        <span class="toggle-label">Key views &amp; insights</span>
+        <label class="toggle-switch">
+          <input type="checkbox" id="toggle-summarize" checked>
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+
+      <div class="toggle-group">
+        <span class="toggle-label">Structure overview</span>
+        <label class="toggle-switch">
+          <input type="checkbox" id="toggle-style" checked>
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+
+      <div class="toggle-group">
+        <span class="toggle-label">Recommended readings</span>
+        <label class="toggle-switch">
+          <input type="checkbox" id="toggle-recommend" checked>
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+    </div>
+    
+    <button class="action-btn" id="toggle-sidebar-btn">
+      Open Reading Companion
+    </button>
+    
+    <div class="shortcuts">
+      <div class="section-title">Keyboard Shortcuts</div>
+      <div class="shortcut">
+        <span>Toggle sidebar</span>
+        <span class="shortcut-key">Ctrl+Shift+R</span>
+      </div>
+    </div>
+    
+    <div class="footer">
+      Reading Companion
+    </div>
+  </div>
+  
+  <script src="popup.js"></script>
+</body>
+</html>
