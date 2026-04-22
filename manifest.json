@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "__MSG_name__",
-  "version": "1.0.0",
-  "description": "__MSG_description__",
+  "name": "Reading Companion V2",
+  "version": "2.1.21",
+  "description": "AI-powered reading companion with section anchor jumping - click any heading to jump to that section",
   "default_locale": "en",
   "permissions": [
     "activeTab",

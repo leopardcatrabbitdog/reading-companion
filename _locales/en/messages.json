@@ -1,10 +1,10 @@
 {
-  "name": {
-    "message": "Reading Companion",
+  "extension_name": {
+    "message": "Reading Companion V2",
     "description": "The name of the extension"
   },
-  "description": {
-    "message": "AI-powered reading companion that summarizes articles, provides insights, and enables interactive discussions",
+  "extension_description": {
+    "message": "AI-powered reading companion with section anchor jumping - click any heading to jump to that section",
     "description": "The description of the extension"
   }
 }

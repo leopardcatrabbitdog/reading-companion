@@ -1,19 +1,42 @@
-// Reading Companion - Background Script (Service Worker)
-// Handles API calls and message routing
+// Reading Companion V2 - Background Script (Service Worker)
+// Based on V1 with increased max_tokens for long articles
 
 // DeepSeek API Configuration
 const DEEPSEEK_CONFIG = {
   baseUrl: 'https://api.deepseek.com'
 };
 
+// DeepSeek available models
+const DEEPSEEK_MODELS = [
+  { value: 'deepseek-chat', label: 'DeepSeek V3 (Chat)' },
+  { value: 'deepseek-reasoner', label: 'DeepSeek o1 (Reasoner)' }
+];
+
 // Gemini API Configuration
 const GEMINI_CONFIG = {
   baseUrl: 'https://generativelanguage.googleapis.com/v1beta/models'
 };
 
-// DeepSeek API Call
+// DeepSeek API Call - V2: improved error handling and model support
 async function callDeepSeekAPI(apiKey, model, messages, temperature, max_tokens) {
   const url = `${DEEPSEEK_CONFIG.baseUrl}/chat/completions`;
+  
+  // Use provided model or default to deepseek-chat
+  const selectedModel = model || 'deepseek-chat';
+  
+  // Note: deepseek-reasoner (o1) doesn't support temperature parameter
+  const requestBody = {
+    model: selectedModel,
+    messages: messages,
+    max_tokens: max_tokens || 8000
+  };
+  
+  // Only add temperature for non-reasoner models
+  if (!selectedModel.includes('reasoner')) {
+    requestBody.temperature = temperature || 0.7;
+  }
+  
+  console.log('[RC V2] DeepSeek API call:', { model: selectedModel, messageCount: messages.length });
   
   const response = await fetch(url, {
     method: 'POST',
@@ -21,32 +44,39 @@ async function callDeepSeekAPI(apiKey, model, messages, temperature, max_tokens)
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${apiKey}`
     },
-    body: JSON.stringify({
-      model: model || 'deepseek-chat',
-      messages: messages,
-      temperature: temperature || 0.7,
-      max_tokens: max_tokens || 4000
-    })
+    body: JSON.stringify(requestBody)
   });
   
   if (!response.ok) {
     const errorText = await response.text();
-    throw new Error(`HTTP ${response.status}: ${errorText}`);
+    console.error('[RC V2] DeepSeek API error:', response.status, errorText);
+    
+    // Parse error for better messages
+    try {
+      const errorJson = JSON.parse(errorText);
+      if (errorJson.error && errorJson.error.message) {
+        throw new Error(errorJson.error.message);
+      }
+    } catch (e) {
+      // If parsing failed or message extraction failed, use original
+    }
+    throw new Error(`DeepSeek API Error ${response.status}: ${errorText.substring(0, 200)}`);
   }
   
-  return await response.json();
+  const data = await response.json();
+  console.log('[RC V2] DeepSeek response received, tokens used:', data.usage?.total_tokens);
+  
+  return data;
 }
 
-// Gemini API Call
+// Gemini API Call - V2: increased default max_tokens to 8000
 async function callGeminiAPI(apiKey, model, messages, temperature, max_tokens) {
-  // Extract the last user message for Gemini
   const userMessage = messages.filter(m => m.role === 'user').pop()?.content || '';
   const systemMessage = messages.filter(m => m.role === 'system').map(m => m.content).join('\n') || '';
   
   const prompt = systemMessage ? `${systemMessage}\n\n${userMessage}` : userMessage;
   
-  // Use the model specified (default to gemini-2.0-flash-exp)
-  const selectedModel = model || 'gemini-2.0-flash-exp';
+  const selectedModel = model || 'gemini-2.5-flash';
   const url = `${GEMINI_CONFIG.baseUrl}/${selectedModel}:generateContent?key=${apiKey}`;
   
   const response = await fetch(url, {
@@ -60,7 +90,7 @@ async function callGeminiAPI(apiKey, model, messages, temperature, max_tokens) {
       }],
       generationConfig: {
         temperature: temperature || 0.7,
-        maxOutputTokens: max_tokens || 4096
+        maxOutputTokens: max_tokens || 8000  // V2: increased from 4096 to 8000
       }
     })
   });
@@ -72,7 +102,6 @@ async function callGeminiAPI(apiKey, model, messages, temperature, max_tokens) {
   
   const data = await response.json();
   
-  // Convert Gemini response to OpenAI-like format
   return {
     choices: [{
       message: {
@@ -88,7 +117,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     .then(response => sendResponse({ success: true, data: response }))
     .catch(error => sendResponse({ success: false, error: error.message }));
   
-  return true; // Keep message channel open for async response
+  return true;
 });
 
 async function handleMessage(request) {
@@ -105,7 +134,6 @@ async function handleMessage(request) {
   }
   
   if (type === 'CALL_GEMINI') {
-    // Get the saved Gemini model from storage
     const stored = await chrome.storage.local.get(['geminiModel']);
     const model = stored.geminiModel || 'gemini-2.5-flash';
     
@@ -123,5 +151,5 @@ async function handleMessage(request) {
 
 // Extension installed/updated
 chrome.runtime.onInstalled.addListener((details) => {
-  console.log('Reading Companion installed/updated:', details.reason);
+  console.log('Reading Companion V2 installed/updated:', details.reason);
 });

@@ -1,161 +1,116 @@
-# Reading Companion - Chrome Extension
+# Reading Companion V2
 
-An AI-powered Chrome extension that helps you get more out of English articles on the web.
+AI-powered reading companion with selective analysis and section anchor jumping.
+
+## Version 2.1.3 - Better Error Handling & Debug Logging
+
+### What's Fixed
+
+1. **Structure Overview now outputs EXACTLY 5 sections**
+
+2. **STRICT constraints added:**
+   - "CRITICAL REQUIREMENT: You MUST divide this article into EXACTLY FIVE (5) distinct sections"
+   - No generic titles (Introduction, Conclusion, etc.)
+   - Each section gets equal depth (3-5 sentences + "Why Here")
+   - No references to "final section" or "last part"
+
+3. **Increased max_tokens from 8000 to 15000** for long articles
 
 ## Features
 
-### 👨‍🏫 Teacher Mode
-- **📌 Key Views & Insights**: Summarizes main arguments, thesis, important facts, and key takeaways
-- **✍️ Writing Style Analysis**: Analyzes tone, structure, literary devices, and target audience
-- **💡 Powerful Quotes**: Extracts 2-3 most insightful or eloquent quotes from the article
-- **📚 Recommended Readings**: Suggests related articles/resources with links and descriptions
+### Teacher Mode
+- **Key Views & Insights**: Core thesis and main arguments
+- **Structure Overview (5 Sections)**: Narrative cartography with:
+  - Exactly 5 distinct sections (STRICT)
+  - Unique descriptive titles
+  - 3-5 sentence summaries per section
+  - "Why Here" explanations
+  - Equal weight to all sections
+- **Powerful Quotes**: Memorable passages
+- **Recommended Readings**: Related articles
 
-### 👨‍🎓 Classmate Mode
-- **Interactive Chat**: Discuss the article with an AI companion
-- **Smart Q&A**: Ask questions about the content and get intelligent answers
-- **Discussion Partner**: Share your thoughts and get thoughtful responses
+### Classmate Mode
+- Chat about the article with AI
 
-## Multi-API Support
-
-This extension supports multiple AI providers. You can choose between:
-
-| Provider | Pros | Cons |
-|----------|------|------|
-| **DeepSeek** | Global access, affordable | China-based company |
-| **Google Gemini** | Powerful, free tier available | Requires Google account |
-
-## Installation
-
-### Step 1: Get an API Key
-
-**Option A: DeepSeek**
-1. Visit [platform.deepseek.com](https://platform.deepseek.com/)
-2. Sign up / Log in
-3. Go to API Keys → Create new key
-4. Copy the API key
-
-**Option B: Google Gemini**
-1. Visit [aistudio.google.com](https://aistudio.google.com/app/apikey)
-2. Sign in with Google account
-3. Create a new API key
-4. Copy the API key
-
-### Step 2: Load the Extension in Chrome
-
-1. **Open Chrome** and go to `chrome://extensions/`
-2. **Enable Developer Mode** (toggle in the top right corner)
-3. **Click "Load unpacked"** button
-4. **Select the `reading-companion` folder** from this project
-5. The extension icon should appear in your Chrome toolbar
-
-### Step 3: Configure the Extension
-
-1. **Click the extension icon** in your Chrome toolbar
-2. **Select your preferred API provider** (DeepSeek or Gemini)
-3. **Enter your API key** in the input field
-4. **Click "Save"**
-5. **Click "Test Connection"** to verify
+### Section Anchor Jump
+Click any heading in the Structure Overview to jump to that section
 
 ## Usage
 
-### Method 1: Click Extension Icon
-1. Navigate to any English article in Chrome
-2. Click the "Reading Companion" icon in your toolbar
-3. The sidebar will appear on the right side
+### Installation
 
-### Method 2: Keyboard Shortcut
-- **Ctrl + Shift + R** (Windows/Linux)
-- Opens the Reading Companion sidebar
+1. Open `chrome://extensions/`
+2. Enable **Developer mode**
+3. Click **Load unpacked**
+4. Select the `reading-companion-v2` folder
 
-## How It Works
+### Setup API Key
 
-### Teacher Mode
-1. Click **"Analyze Article"** button
-2. Wait for AI to process the content
-3. View:
-   - Key arguments and insights
-   - Writing style analysis
-   - Related topic suggestions
+1. Click the extension icon
+2. Choose provider (DeepSeek or Gemini)
+3. Enter your API key
+4. Click **Save** or **Test** first
 
-### Classmate Mode
-1. Switch to **"Classmate"** tab
-2. Type your question or thought
-3. Press **Enter** or click **Send**
-4. Get intelligent responses about the article
+### Analyze an Article
 
-## Files Structure
+1. Open any article in your browser
+2. Click extension icon → **Open Reading Companion**
+3. Configure toggles:
+   - ☐ Key views & insights
+   - ☐ Structure overview (5 sections)
+   - ☐ Recommended readings
+4. Click **Analyze Article**
+
+## Keyboard Shortcuts
+
+| Shortcut | Action |
+|----------|--------|
+| `Ctrl+Shift+R` | Toggle sidebar |
+
+## Files
 
 ```
-reading-companion/
-├── manifest.json          # Extension configuration (Manifest v3)
+reading-companion-v2/
+├── manifest.json
+├── README.md
+├── _locales/
+│   └── en/
+│       └── messages.json
 ├── background/
-│   └── background.js      # Service worker (API calls)
+│   └── background.js
 ├── content/
-│   └── content.js        # Content script (sidebar)
-├── popup/
-│   ├── popup.html        # Extension popup UI
-│   └── popup.js          # Popup logic
+│   └── content.js
 ├── icons/
 │   ├── icon16.png
 │   ├── icon48.png
 │   └── icon128.png
-└── _locales/
-    └── en/
-        └── messages.json # i18n strings
+└── popup/
+    ├── popup.html
+    └── popup.js
 ```
 
-## API Configuration
+## Changelog
 
-The extension supports the following AI providers:
+### v2.1.3
+- Added detailed console logging for debugging API responses
+- Better error handling for invalid API responses
+- Handles both DeepSeek and Gemini response formats
+- Console logs show full response for debugging
 
-### DeepSeek
-- **Endpoint**: `https://api.deepseek.com/chat/completions`
-- **Model**: `deepseek-chat`
-- **Pricing**: Affordable with free credits
+### v2.1.2
+- STRICT 5-section prompt with critical requirements
+- Increased max_tokens to 15000 for long articles
+- No generic titles allowed
+- Equal depth for all 5 sections
 
-### Google Gemini
-- **Endpoint**: `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent`
-- **Model**: `gemini-2.0-flash`
-- **Pricing**: Free tier available
+### v2.1.1
+- Fixed feature toggles not working
+- Fixed Structure Overview parsing
 
-## Privacy
+### v2.1.0
+- Complete rebuild based on V1
+- New Senior Editor prompt for Structure Overview
+- Increased content limit to 40,000 chars
 
-- All API calls are made directly between your browser and the selected AI provider
-- No data is stored on external servers
-- Article content is only sent to the AI for analysis
-- API keys are stored locally in your browser
-
-## Troubleshooting
-
-### "API key not configured"
-- Make sure you've entered a valid API key for the selected provider
-- Click Save after entering the key
-
-### "Network error" or "Failed to fetch"
-1. **Test Connection First**
-   - Click the 📚 extension icon
-   - Click **"Test Connection"**
-   - If it fails, check your network
-
-2. **Reload Extension** ⭐ IMPORTANT AFTER UPDATES
-   - Go to `chrome://extensions/`
-   - Find **Reading Companion**
-   - Click the 🔄 **reload** button
-
-3. **Switch Provider**
-   - Try switching to a different AI provider
-   - Some providers may have network restrictions
-
-### "Unable to extract content"
-- Try refreshing the page
-- Make sure the article has substantial text content
-- Some paywalled sites may not work properly
-
-### Sidebar not appearing
-- Check that the extension is enabled in `chrome://extensions/`
-- Try clicking the extension icon directly
-- Use the keyboard shortcut Ctrl+Shift+R
-
-## License
-
-MIT License
+### v2.0.0
+- Initial V2 with section anchor jumping

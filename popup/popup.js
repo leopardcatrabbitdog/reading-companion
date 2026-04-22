@@ -168,7 +168,6 @@ document.getElementById('toggle-sidebar-btn').addEventListener('click', async ()
   }
 
   try {
-    // Try directly — works if content script is already running
     await chrome.tabs.sendMessage(tab.id, { type: 'TOGGLE_SIDEBAR' });
     window.close();
   } catch (e) {
@@ -179,9 +178,26 @@ document.getElementById('toggle-sidebar-btn').addEventListener('click', async ()
   }
 });
 
+// ── Feature Toggles ─────────────────────────────────────────────────────────
+document.getElementById('toggle-summarize')?.addEventListener('change', async (e) => {
+  await chrome.storage.local.set({ featureSummarize: e.target.checked });
+});
+
+document.getElementById('toggle-style')?.addEventListener('change', async (e) => {
+  await chrome.storage.local.set({ featureStructure: e.target.checked });
+});
+
+document.getElementById('toggle-recommend')?.addEventListener('change', async (e) => {
+  await chrome.storage.local.set({ featureRecommend: e.target.checked });
+});
+
+document.getElementById('toggle-quotes')?.addEventListener('change', async (e) => {
+  await chrome.storage.local.set({ featureQuotes: e.target.checked });
+});
+
 // ── Init ─────────────────────────────────────────────────────────────────────
 (async () => {
-  const result = await chrome.storage.local.get(['apiProvider', 'deepseekApiKey', 'geminiApiKey', 'geminiModel']);
+  const result = await chrome.storage.local.get(['apiProvider', 'deepseekApiKey', 'geminiApiKey', 'geminiModel', 'featureSummarize', 'featureStructure', 'featureRecommend', 'featureQuotes']);
   const provider = result.apiProvider || 'deepseek';
 
   // Set provider dropdown
@@ -197,6 +213,20 @@ document.getElementById('toggle-sidebar-btn').addEventListener('click', async ()
   if (result.geminiModel) {
     const sel = document.getElementById('gemini-model');
     if (sel) sel.value = result.geminiModel;
+  }
+
+  // Restore feature toggles (default: all ON)
+  if (document.getElementById('toggle-summarize')) {
+    document.getElementById('toggle-summarize').checked = result.featureSummarize !== false;
+  }
+  if (document.getElementById('toggle-style')) {
+    document.getElementById('toggle-style').checked = result.featureStructure !== false;
+  }
+  if (document.getElementById('toggle-recommend')) {
+    document.getElementById('toggle-recommend').checked = result.featureRecommend !== false;
+  }
+  if (document.getElementById('toggle-quotes')) {
+    document.getElementById('toggle-quotes').checked = result.featureQuotes !== false;
   }
 
   // Status
